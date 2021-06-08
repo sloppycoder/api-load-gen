@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+spec:
+  selector:
+    matchLabels:
+      job: load-generator
+  template:
+    metadata:
+      labels:
+        job: load-generator
+    spec:
+      containers:
+        - name: locust
+          image: gcr.io/vino9-276317/api-load-gen
+          env:
+            - name: TARGET_API
+              value: "accounts"
+            - name: USERS
+              value: "10"
+            - name: USE_DUMMY_ID
+              value: "true"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-load-gen
+  labels:
+    app: api-load-gen
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-load-gen
+  ports:
+    - name: http
+      port: 8089

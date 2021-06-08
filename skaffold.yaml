@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta1
+kind: Config
+metadata:
+  name: api-load-gen
+
+build:
+  artifacts:
+  - image: gcr.io/vino9-276317/api-load-gen
+
+deploy:
+  kustomize:
+    paths:
+      - k8s/envs/minikube

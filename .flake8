@@ -1,0 +1,6 @@
+[flake8]
+exclude = .git,__pycache__,.venv
+max-line-length = 115
+extend-ignore = W503
+per-file-ignores = 
+    tests/conftest.py:E501
