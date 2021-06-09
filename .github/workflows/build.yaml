@@ -1,9 +1,10 @@
 name: docker_build
 
 on:
-  tags:
-    - v0.*
-    - v1.*
+  push:
+    tags:
+      - v0.*
+      - v1.*
 
 jobs:
   docker:
