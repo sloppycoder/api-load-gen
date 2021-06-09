@@ -3,6 +3,6 @@
 .vscode/
 *.iml
 k8s/
-venv/
-Makefile
-README.md
+.venv/
+.flake8
+.pre-commit-config.yaml

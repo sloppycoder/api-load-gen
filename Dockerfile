@@ -11,10 +11,21 @@ COPY requirements.txt .
 RUN pip install --root="/install" -r requirements.txt
 
 FROM base
-COPY --from=builder /install /
+RUN apt-get -qq update \
+    && apt-get install -y --no-install-recommends \
+        procps \
+        net-tools \
+        dnsutils \
+        vim-tiny \
+        curl \
+        jq
 
+COPY --from=builder /install /
+COPY bin/locust_exporter /bin/
 COPY entrypoint.sh *.py /
 
-EXPOSE 8089
+# locust master and UI: 8089
+# 9646: locust_exporter
+EXPOSE 8089 9646
 ENTRYPOINT ./entrypoint.sh
 
