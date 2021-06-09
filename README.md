@@ -12,8 +12,8 @@ poetry install
 # start up the venv
 poetry shell
 
-# start locust
-locust 
+# start locust with web console enabled
+./entry_point.sh 
 
 # open browser to http://localhost:3000 to see the results
 
@@ -21,4 +21,22 @@ locust
 skaffold dev
 ```
 
-The ```prometheus_exporter.py``` has not been tested yet.
+### To work with prometheus
+```
+poetry shell
+
+# starts master, worker and locust_exporter
+./entry_point.sh
+
+```
+Update your prometheus config to scrape at port 9464
+```
+# prometheus.yaml
+scrape_configs:
+  - job_name: 'locust_exporter'
+    metrics_path: '/metrics'
+    scheme: 'http'
+    static_configs:
+    - targets: ['localhost:9646']
+
+```
