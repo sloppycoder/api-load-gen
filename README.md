@@ -33,10 +33,10 @@ Update your prometheus config to scrape at port 9464
 ```
 # prometheus.yaml
 scrape_configs:
-  - job_name: 'locust_exporter'
-    metrics_path: '/metrics'
+  - job_name: 'locust'
+    metrics_path: '/q/metrics'
     scheme: 'http'
     static_configs:
-    - targets: ['localhost:9646']
+    - targets: ['localhost:8089']
 
 ```

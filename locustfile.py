@@ -2,13 +2,16 @@ import random
 import re
 import sys
 
-from locust import TaskSet, task
+from locust import TaskSet, events, task
 from locust.contrib.fasthttp import FastHttpUser
 from locust.main import main
 
-from prometheus_exporter import register_exporter
+import prometheus_exporter
 
-register_exporter()
+
+@events.init.add_listener
+def init_prometheus(**kwargs):
+    prometheus_exporter.register(**kwargs)
 
 
 class ApiCallTask(TaskSet):

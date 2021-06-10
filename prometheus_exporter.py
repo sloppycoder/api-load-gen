@@ -4,7 +4,6 @@ from itertools import chain
 
 import six
 from flask import Response, request
-from locust import events
 from locust import runners as locust_runners
 from locust import stats as locust_stats
 from prometheus_client import REGISTRY, Metric, exposition
@@ -127,12 +126,11 @@ class LocustCollector(object):
                 yield metric
 
 
-@events.init.add_listener
-def register_exporter(environment, runner, **kwargs):
+def register(environment, runner, **kwargs):
     print("locust init event received")
     if environment.web_ui and runner:
 
-        @environment.web_ui.app.route("/export/prometheus")
+        @environment.web_ui.app.route("/q/metrics")
         def prometheus_exporter():
             registry = REGISTRY
             encoder, content_type = exposition.choose_encoder(
