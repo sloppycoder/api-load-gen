@@ -6,6 +6,10 @@ from locust import TaskSet, task
 from locust.contrib.fasthttp import FastHttpUser
 from locust.main import main
 
+from prometheus_exporter import register_exporter
+
+register_exporter()
+
 
 class ApiCallTask(TaskSet):
     @task

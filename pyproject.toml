@@ -8,6 +8,7 @@ authors = ["Li Lin <guru.lin@gmail.com>"]
 python = "^3.8.1"
 locust = "^1.5.3"
 prometheus-client = "^0.11.0"
+six = "^1.16.0"
 
 [tool.isort]
 multi_line_output = 3
