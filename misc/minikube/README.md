@@ -16,7 +16,7 @@ The script and manifest files here are for setting up (Prometheus)[https://prome
 # please make sure minikube and kustomize binaries are available
 # in your path before running the following 
 
-./init.sh --create 
+./init.sh
 
 # check if prometheus is up
 kubectl get prometheus -n prometheus
@@ -30,7 +30,15 @@ kubectl get svc prometheus -n prometheus
 NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 prometheus   NodePort   10.101.241.60   <none>        9090:30900/TCP   93m
 
-# open your browser and look around in Prometheus Web UI.
+# check if prometheus UI is exposed
+kubectl get svc prometheus -n prometheus
+
+NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+prometheus   NodePort   10.101.241.60   <none>        9090:30900/TCP   93m
+
+# open your browser and look around in Prometheus Web UI and Grafana
+# need to setup datasource first time login to Grafana. the prometheus URL 
+# is http://prometheus:9090
 ```
 
-The proceed to run locust. See (project documents)[../README.md] for instructions. If all goes well, you should see timeseries with names like ```python_info``` in Prometheus UI.
+The proceed to run locust. See (project documents)[../README.md] for instructions. If all goes well, you should see timeseries with names like ```python_info``` in Prometheus UI. The data of Prometheus and Grafana are stored on persistent volumes and should remain after minikube restart.

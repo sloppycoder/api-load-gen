@@ -22,30 +22,19 @@ check_prereqs()
 
 start_minikube()
 {
-    if [ "$1" = "--create" ]; then
+    echo creating new minikube profile with parameters 
+    echo
+    echo "      $MINIKUBE_CONFIG "
+    echo
+    echo ctrl-c to abort in next 5 seconds
+    sleep 5
 
-        echo creating new minikube profile with parameters 
-        echo
-        echo "      $MINIKUBE_CONFIG "
-        echo
-        echo ctrl-c to abort in next 5 seconds
-        sleep 5
-
-        minikube start -p $PROFILE --wait=all $MINIKUBE_CONFIG
-
-    else 
-        if minikube profile list | grep $PROFILE ; then
-            
-            minikube start -p $PROFILE --wait=all
-
-        else 
-            echo minikube profile $PROFILE does not exists
-            exit 3
-        fi
-    fi
+    minikube start -p $PROFILE --wait=all $MINIKUBE_CONFIG
 
     sleep 2
+
     minikube profile $PROFILE
+    
     if minikube status; then
         echo minikube is ready
     else
@@ -60,9 +49,13 @@ install_prometheus()
     # install prometheus operator using kustomize
     #   https://github.com/prometheus-operator/prometheus-operator
     # see kustomization.yaml for details
-    kustomize build . | minikube kubectl -- apply -f - 
+    kustomize build operator | minikube kubectl -- apply -f - 
+    # let CRDs initialize first, otherwise we'll get errors
+    # when provisioning prometheus instance
+    sleep 5
+    kustomize build instance | minikube kubectl -- apply -f - 
 }
 
 check_prereqs
-start_minikube $1
+start_minikube
 install_prometheus
