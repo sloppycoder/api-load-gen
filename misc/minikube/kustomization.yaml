@@ -1,0 +1,19 @@
+resources:
+  - namespace.yaml
+  
+  # prometheus operator. only needs to run once. 
+  # can comment out for subsequent runs to save time
+  - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/bundle.yaml
+  
+  # rbac for prometheus instance
+  - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-cluster-role-binding.yaml
+  - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-cluster-role.yaml
+  - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-service-account.yaml
+  
+  #deploy prometheus instance
+  - prometheus.yaml
+
+  #deploy grafana instance
+  - grafana.yaml
+
+namespace: prometheus
