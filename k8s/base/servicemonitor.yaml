@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: locust
+  labels:
+    target: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: api-load-gen
+  endpoints:
+    - port: http
+      path: /q/metrics

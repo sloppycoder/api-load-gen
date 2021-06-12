@@ -10,14 +10,13 @@ spec:
     metadata:
       labels:
         app: api-load-gen
+        metrics: enabled
     spec:
       containers:
         - name: locust
           image: gcr.io/vino9-276317/api-load-gen
           ports:
             - containerPort: 8089
-              protocol: TCP
-            - containerPort: 9646
               protocol: TCP
           env:
             - name: HOST
@@ -35,11 +34,9 @@ metadata:
   labels:
     app: api-load-gen
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: api-load-gen
   ports:
     - name: http
       port: 8089
-    - name: metrics
-      port: 9646
