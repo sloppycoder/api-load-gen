@@ -31,7 +31,7 @@ class ApiUser(FastHttpUser):
         super(ApiUser, self).__init__(*args, **kwargs)
 
     def wait_time(self):
-        return 0
+        return 0.2
 
 
 if __name__ == "__main__":
