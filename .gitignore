@@ -46,5 +46,5 @@ gcp/gcloud-config.json
 /cassandra.env.*
 
 # test data
-**/ids*.txt
+**/*.csv
 

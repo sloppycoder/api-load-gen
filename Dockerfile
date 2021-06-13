@@ -21,7 +21,7 @@ RUN apt-get -qq update \
         jq
 
 COPY --from=builder /install /
-COPY entrypoint.sh *.py /
+COPY entrypoint.sh *.py dummy_data.csv /
 
 # locust master and UI: 8089
 # 9646: locust_exporter

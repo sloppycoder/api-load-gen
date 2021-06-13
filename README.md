@@ -1,6 +1,6 @@
 ## Load Generator
 
-Use [Locust.io](http://locust.io) to generate continous calls to microservices in order to generate logs and trace entries.
+Use [Locust.io](http://locust.io) to generate continous calls to microservices for performance testing.
 
 
 ### Quick Start
@@ -21,22 +21,8 @@ poetry shell
 skaffold dev
 ```
 
-### To work with prometheus
-```
-poetry shell
+### To work with prometheus in Minikube
+See [this README](misc/minikube/README.md) for instruction to run locust, Prometheus and Grafana in Minkube.
 
-# starts master, worker and locust_exporter
-./entry_point.sh
-
-```
-Update your prometheus config to scrape at port 9464
-```
-# prometheus.yaml
-scrape_configs:
-  - job_name: 'locust'
-    metrics_path: '/q/metrics'
-    scheme: 'http'
-    static_configs:
-    - targets: ['localhost:8089']
-
-```
+### Test Data 
+This script reads test data from CSV file at run time. The name of the csv file is /data/data.csv and can be overriden by API_DATA_FILE environment variable. When running inside K8S environment, to use new data for testing, just copy the data file into the persistent volume, e.g. ''' kubectl cp data.csv api-load-gen-7cc7899d78-vkxcs:/data/. ''' and then kill the pod. A new pod will be started which will use new data file for testing.

@@ -9,6 +9,14 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: locust",
+      "type": "python",
+      "request": "launch",
+      "program": "locustfile.py",
+      "args": ["--host", "http://localhost:8080", "--headless", "--user", "2"],
       "console": "integratedTerminal",
       "env": {
         "GEVENT_SUPPORT": "true"
