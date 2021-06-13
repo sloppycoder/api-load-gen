@@ -1,3 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: testdata-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -10,7 +23,6 @@ spec:
     metadata:
       labels:
         app: api-load-gen
-        metrics: enabled
     spec:
       containers:
         - name: locust
@@ -25,6 +37,13 @@ spec:
               value: "10"
             - name: WORKERS
               value: "1"
+          volumeMounts:
+            - mountPath: /data
+              name: testdata-pv
+      volumes:
+        - name: testdata-pv
+          persistentVolumeClaim:
+            claimName: testdata-pvc
 
 ---
 apiVersion: v1
