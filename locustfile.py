@@ -1,13 +1,14 @@
 import random
 import re
 import sys
+import uuid
 
 from locust import TaskSet, between, events, task
 from locust.contrib.fasthttp import FastHttpUser
 from locust.main import main
-from data_provider import dataset_for_user
 
 import prometheus_exporter
+from data_provider import dataset_for_user
 
 
 @events.init.add_listener
@@ -22,8 +23,10 @@ class ApiCallTask(TaskSet):
     @task
     def get_account_detail(self):
         data = self.user.next_call_params()
-        url = f"/accounts/{ data['account_number'] }"
-        self.client.get(url)
+        # url = f"/accounts/{ data['account_number'] }"
+        url = f"/accounts/v2/{ data['account_number'] }/2020-12-25"
+        headers = {"GroupId": data["group_id"], "CorrelationId": str(uuid.uuid4())}
+        self.client.get(url, headers)
 
 
 class ApiUser(FastHttpUser):
