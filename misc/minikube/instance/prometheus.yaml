@@ -8,13 +8,12 @@ metadata:
 spec:
   replicas: 1
   serviceAccountName: prometheus
-  serviceMonitorNamespaceSelector: 
-    any: true
+  serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector: {}
     # matchLabels:
     #   target: prometheus
   enableAdminAPI: false
-  # externalUrl: https://kube2.vino9.org/prometheus
+  externalUrl: https://kube2.vino9.org/prometheus
   storage:
     volumeClaimTemplate:
       spec:
@@ -32,9 +31,9 @@ spec:
   type: NodePort
   ports:
   - name: web
-    nodePort: 30900
     port: 9090
     protocol: TCP
     targetPort: web
+    nodePort: 30900
   selector:
     prometheus: prometheus

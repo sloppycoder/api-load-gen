@@ -73,11 +73,11 @@ metadata:
   name: grafana
 spec:
   type: NodePort
-  nodePort: 30901
   ports:
-    - port: 3000
-      protocol: TCP
-      targetPort: http-grafana
+  - port: 3000
+    protocol: TCP
+    targetPort: http-grafana
+    nodePort: 30901
   selector:
     app: grafana
   sessionAffinity: None
