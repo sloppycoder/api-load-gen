@@ -8,11 +8,13 @@ metadata:
 spec:
   replicas: 1
   serviceAccountName: prometheus
-  serviceMonitorNamespaceSelector: {}
+  serviceMonitorNamespaceSelector: 
+    any: true
   serviceMonitorSelector: {}
     # matchLabels:
     #   target: prometheus
-  enableAdminAPI: true
+  enableAdminAPI: false
+  # externalUrl: https://kube2.vino9.org/prometheus
   storage:
     volumeClaimTemplate:
       spec:

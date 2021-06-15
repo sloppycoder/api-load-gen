@@ -54,6 +54,7 @@ metadata:
     app: api-load-gen
 spec:
   type: NodePort
+  NodePort: 30902
   selector:
     app: api-load-gen
   ports:
