@@ -24,9 +24,9 @@ class ApiCallTask(TaskSet):
     def get_account_detail(self):
         data = self.user.next_call_params()
         # url = f"/accounts/{ data['account_number'] }"
-        url = f"/accounts/v2/{ data['account_number'] }/2020-12-25"
+        url = f"/accounts/v2/{ data['account_number'] }/{ data['balance_date'] }"
         headers = {"GroupId": data["group_id"], "CorrelationId": str(uuid.uuid4())}
-        self.client.get(url, headers)
+        self.client.get(url, headers=headers)
 
 
 class ApiUser(FastHttpUser):
@@ -36,7 +36,7 @@ class ApiUser(FastHttpUser):
         super(ApiUser, self).__init__(*args, **kwargs)
         self.dataset = dataset_for_user()
 
-    wait_time = between(2, 5)
+    wait_time = between(0.2, 2)
 
     def next_call_params(self):
         r = random.randrange(0, len(self.dataset))

@@ -32,7 +32,7 @@ spec:
               protocol: TCP
           env:
             - name: HOST
-              value: "http://accounts:8080"
+              value: "http://accounts-reactive-openapi:8080"
             - name: USERS
               value: "10"
             - name: WORKERS
