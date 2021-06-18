@@ -32,11 +32,13 @@ spec:
               protocol: TCP
           env:
             - name: HOST
-              value: "http://accounts-reactive-openapi:8080"
+              value: "http://accounts:8080"
             - name: USERS
               value: "10"
             - name: WORKERS
               value: "1"
+            - name: USE_RANDOM_ID
+              value: "false"
           volumeMounts:
             - mountPath: /data
               name: testdata-pv

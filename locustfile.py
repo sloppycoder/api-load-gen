@@ -1,3 +1,4 @@
+import os
 import random
 import re
 import sys
@@ -9,6 +10,11 @@ from locust.main import main
 
 import prometheus_exporter
 from data_provider import dataset_for_user
+
+RANDOM_DATA = {"group_id" : "GSG50102", "account_number" :"random"}
+
+def is_true(var_name):
+    return os.environ.get(var_name, "") == "true"
 
 
 @events.init.add_listener
@@ -22,9 +28,9 @@ class ApiCallTask(TaskSet):
 
     @task
     def get_account_detail(self):
-        data = self.user.next_call_params()
-        # url = f"/accounts/{ data['account_number'] }"
-        url = f"/accounts/v2/{ data['account_number'] }/{ data['balance_date'] }"
+        suffix = "" if is_true("USE_V2") is None else "/v2"
+        data = self.user.next_call_params() if is_true("USE_RANDOM_ID") else RANDOM_DATA
+        url = f"/accounts{suffix}/{ data['account_number'] }"
         headers = {"GroupId": data["group_id"], "CorrelationId": str(uuid.uuid4())}
         self.client.get(url, headers=headers)
 
@@ -36,7 +42,7 @@ class ApiUser(FastHttpUser):
         super(ApiUser, self).__init__(*args, **kwargs)
         self.dataset = dataset_for_user()
 
-    wait_time = between(0.2, 2)
+    wait_time = between(0.01, 0.01)
 
     def next_call_params(self):
         r = random.randrange(0, len(self.dataset))
