@@ -39,13 +39,13 @@ spec:
               value: "1"
             - name: USE_RANDOM_ID
               value: "false"
-          volumeMounts:
-            - mountPath: /data
-              name: testdata-pv
-      volumes:
-        - name: testdata-pv
-          persistentVolumeClaim:
-            claimName: testdata-pvc
+      #     volumeMounts:
+      #       - mountPath: /data
+      #         name: testdata-pv
+      # volumes:
+      #   - name: testdata-pv
+      #     persistentVolumeClaim:
+      #       claimName: testdata-pvc
 
 ---
 apiVersion: v1
