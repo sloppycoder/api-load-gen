@@ -13,7 +13,6 @@ spec:
     # matchLabels:
     #   target: prometheus
   enableAdminAPI: false
-  externalUrl: https://kube2.vino9.org/prometheus
   storage:
     volumeClaimTemplate:
       spec:
