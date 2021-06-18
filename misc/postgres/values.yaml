@@ -1,6 +1,0 @@
-image.tag: 12-debian-10
-postgresqlUsername: pocuser
-postgresqlPassword: password
-postgresqlDatabase: poc
-metrics.serviceMonitor.enabled: true
-

@@ -1,32 +1,45 @@
-## Install Postgres using Helm chart
+## Install Postgres using CrunchyData operator
+
+Follow this [Quick Start Guide](https://access.crunchydata.com/documentation/postgres-operator/4.7.0/quickstart/)
 
 ```
+# install the operator
+kubectl create namespace pgo
+kubectl apply -f \ 
+https://raw.githubusercontent.com/CrunchyData/postgres-operator/v4.7.0/installers/kubectl/postgres-operator.yml
 
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install pg1 bitnami/postgresql -f values.yaml 
+# check operator installation
+kubectl -n pgo get deployments
+kubectl -n pgo get pods
 
-# wait a while for everything to be configured
-# check release status
+# install the client, some manual steps involved
+curl https://raw.githubusercontent.com/CrunchyData/postgres-operator/v4.7.0/installers/kubectl/client-setup.sh > client-setup.sh
+chmod +x client-setup.sh
+./client-setup.sh
 
-helm status pg1
+# add the following to your .bash_profile or .zshrc
+export PGOUSER="${HOME?}/.pgo/pgo/pgouser"
+export PGO_CA_CERT="${HOME?}/.pgo/pgo/client.crt"
+export PGO_CLIENT_CERT="${HOME?}/.pgo/pgo/client.crt"
+export PGO_CLIENT_KEY="${HOME?}/.pgo/pgo/client.key"
+export PGO_APISERVER_URL='https://127.0.0.1:8443'
+export PGO_NAMESPACE=pgo
 
-# helm should print something like this:
 
+# the operator port is not directly accessible from outside cluster 
+# for security reason, start proxy first
+kubectl -n pgo port-forward svc/postgres-operator 8443:8443 &
 
-    pg1-postgresql.default.svc.cluster.local - Read/Write connection
+# if this command prints out version the CLI can talk to operator successfully
+pgo version
 
-To get the password for "postgres" run:
+# create cluster
+pgo create cluster hippo
 
-    export POSTGRES_PASSWORD=$(kubectl get secret --namespace default pg1-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+# show user credential
+pgo show user -n pgo hippo
 
-To connect to your database run the following command:
-
-    kubectl run pg1-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:11.12.0-debian-10-r23 --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host pg1-postgresql -U postgres -d postgres -p 5432
-
-To connect to your database from outside the cluster execute the following commands:
-
-    kubectl port-forward --namespace default svc/pg1-postgresql 5432:5432 &
-    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+# update your application database connection info
 
 
 ```
