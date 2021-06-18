@@ -28,7 +28,7 @@ class ApiCallTask(TaskSet):
 
     @task
     def get_account_detail(self):
-        suffix = "" if is_true("USE_V2") is None else "/v2"
+        suffix = "/v2" if is_true("USE_V2") else ""
         data = self.user.next_call_params() if is_true("USE_RANDOM_ID") else RANDOM_DATA
         url = f"/accounts{suffix}/{ data['account_number'] }"
         headers = {"GroupId": data["group_id"], "CorrelationId": str(uuid.uuid4())}
