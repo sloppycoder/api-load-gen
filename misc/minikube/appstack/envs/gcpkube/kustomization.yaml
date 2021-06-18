@@ -1,0 +1,16 @@
+resources:
+  - ../../base
+
+namespace: prometheus
+
+
+patchesJSON6902:
+- target:
+    group: monitoring.coreos.com
+    version: v1
+    kind: Prometheus
+    name: prometheus
+  patch: |-
+    - op: add
+      path: /spec/externalUrl
+      value: https://kube2.vino9.org/prometheus

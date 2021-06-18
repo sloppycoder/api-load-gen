@@ -12,4 +12,3 @@ resources:
   #deploy grafana instance
   - grafana.yaml
 
-namespace: prometheus

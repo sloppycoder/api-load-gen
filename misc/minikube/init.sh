@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MINIKUBE_CONFIG="--driver=kvm2 --disk-size=20000mb --cpus=2 --memory=8192mb --kubernetes-version=1.19.11"
+MINIKUBE_CONFIG="--driver=kvm2 --disk-size=20000mb --cpus=2 --memory=12288mb --kubernetes-version=1.19.11"
 PROFILE=locust
 
 # make sure the required binary exists in PATH before proceeding
@@ -53,7 +53,13 @@ install_prometheus()
     # let CRDs initialize first, otherwise we'll get errors
     # when provisioning prometheus instance
     sleep 5
-    kustomize build instance | minikube kubectl -- apply -f - 
+    if [ "$USER" = "guru_lin_gmail_com" ]; then
+        overlay="gcpkube"
+    else
+        overlay="minikube"
+    fi
+
+    kustomize build appstack/envs/$overlay | minikube kubectl -- apply -f - 
 }
 
 check_prereqs
