@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -74,7 +76,10 @@ func invokeAPI() {
 		boomer.RecordSuccess("GET", path,
 			elapsed.Nanoseconds()/int64(time.Millisecond), response.ContentLength)
 
-		// dp we need to full response body?
+		_, err := io.Copy(ioutil.Discard, response.Body)
+		if err != nil {
+			log.Printf("Error reading response for %s", path)
+		}
 		response.Body.Close()
 	}
 
@@ -86,13 +91,13 @@ func invokeAPI() {
 func initHTTPClient() {
 	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 2000
 	tr := &http.Transport{
-		MaxIdleConnsPerHost: 2000,
+		MaxIdleConnsPerHost: 10,
 		DisableCompression:  true,
 		DisableKeepAlives:   false,
 	}
 	client = &http.Client{
 		Transport: tr,
-		Timeout:   time.Duration(120) * time.Second,
+		Timeout:   time.Duration(10) * time.Second,
 	}
 }
 
