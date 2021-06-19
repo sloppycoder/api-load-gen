@@ -1,11 +1,15 @@
 package main
 
 import (
+	"encoding/csv"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -20,9 +24,75 @@ var total, failed uint64 = 0, 0
 var verbose, useRandomID, v2 = false, false, false
 var baseURL string
 var sleep int
+var entries [][]string
 
-func nextParams() (string, string) {
-	return "GRP1111", "11223344"
+var defaultTestData = [][]string{
+	{"GRP1", "01", "20210530"},
+	{"GRP2", "02", "20210530"},
+	{"GRP3", "03", "20210530"},
+	{"GRP4", "04", "20210530"},
+	{"GRP5", "05", "20210530"},
+	{"GRP6", "06", "20210530"},
+	{"GRP7", "07", "20210530"},
+	{"GRP8", "08", "20210530"},
+	{"GRP9", "09", "20210530"},
+}
+
+func initTestData() {
+	dataFile := os.Getenv("API_DATA_FILE")
+	if dataFile == "" {
+		dataFile = "/data/data.csv"
+	}
+
+	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
+		log.Printf("Invalid test data file %s", dataFile)
+		entries = defaultTestData
+		return
+	}
+
+	file, err := os.Open(dataFile)
+	if err != nil {
+		log.Printf("Cannot open test data file %s", dataFile)
+		entries = defaultTestData
+		return
+	}
+	defer file.Close()
+
+	r := csv.NewReader(file)
+	entries, err := r.ReadAll()
+	if err != nil {
+		log.Printf("Error when reading CSV file %s", dataFile)
+		entries = defaultTestData
+		return
+	}
+
+	// randomize the order by shuffle it 3 times
+	for i := 0; i < 3; i++ {
+		rand.Shuffle(len(entries), func(i, j int) { entries[i], entries[j] = entries[j], entries[i] })
+	}
+
+	log.Printf("iniatialized test data from %s", dataFile)
+}
+
+func nextEntry() (map[string]string, error) {
+	if useRandomID {
+		return map[string]string{
+			"GroupId":   "GRP1111",
+			"AccountNo": "random",
+			"asOf":      "",
+		}, nil
+	}
+
+	entry := entries[rand.Intn(len(entries))] //nolint:gosec
+	if len(entry) < 3 {
+		return nil, fmt.Errorf("invalid test data %v", entry)
+	}
+
+	return map[string]string{
+		"GroupId":   entry[0],
+		"AccountNo": entry[1],
+		"asOf":      entry[2],
+	}, nil
 }
 
 func apiURL(accountNum string) string {
@@ -37,14 +107,18 @@ func apiURL(accountNum string) string {
 }
 
 func readAndDiscard(response *http.Response) {
-	io.Copy(ioutil.Discard, response.Body)
-	response.Body.Close()
+	_, _ = io.Copy(ioutil.Discard, response.Body)
+	_ = response.Body.Close()
 }
 
 func invokeAPI() {
-	groupID, accNum := nextParams()
-	path := apiURL(accNum)
+	params, err := nextEntry()
+	if err != nil {
+		log.Printf("%v", err)
+		return
+	}
 
+	path := apiURL(params["AccountNo"])
 	request, err := http.NewRequest("GET", baseURL+path, nil)
 	if err != nil {
 		log.Fatalf("%v\n", err)
@@ -52,7 +126,7 @@ func invokeAPI() {
 
 	id, _ := uuid.NewRandom()
 	request.Header.Set("CorrelationId", id.String())
-	request.Header.Set("GroupId", groupID)
+	request.Header.Set("GroupId", params["GroupId"])
 	request.Header.Set("Accept", "application/json")
 
 	startTime := time.Now()
@@ -117,6 +191,8 @@ func main() {
 
 	log.Printf("API endpoint is %s, random-id=%t, sleep=%d", baseURL, useRandomID, sleep)
 
+	rand.Seed(time.Now().UnixNano())
+	initTestData()
 	initHTTPClient()
 
 	task1 := &boomer.Task{
