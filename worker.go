@@ -24,36 +24,22 @@ var total, failed uint64 = 0, 0
 var verbose, useRandomID, v2 = false, false, false
 var baseURL string
 var sleep int
-var entries [][]string
-
-var defaultTestData = [][]string{
-	{"GRP1", "01", "20210530"},
-	{"GRP2", "02", "20210530"},
-	{"GRP3", "03", "20210530"},
-	{"GRP4", "04", "20210530"},
-	{"GRP5", "05", "20210530"},
-	{"GRP6", "06", "20210530"},
-	{"GRP7", "07", "20210530"},
-	{"GRP8", "08", "20210530"},
-	{"GRP9", "09", "20210530"},
-}
+var entries [][]string = [][]string{{"GRP1", "01", "20210530"}}
 
 func initTestData() {
 	dataFile := os.Getenv("API_DATA_FILE")
 	if dataFile == "" {
-		dataFile = "/data/data.csv"
+		dataFile = "dummy_data.csv"
 	}
 
 	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
 		log.Printf("Invalid test data file %s", dataFile)
-		entries = defaultTestData
 		return
 	}
 
 	file, err := os.Open(dataFile)
 	if err != nil {
 		log.Printf("Cannot open test data file %s", dataFile)
-		entries = defaultTestData
 		return
 	}
 	defer file.Close()
@@ -62,13 +48,14 @@ func initTestData() {
 	entries, err := r.ReadAll()
 	if err != nil {
 		log.Printf("Error when reading CSV file %s", dataFile)
-		entries = defaultTestData
 		return
 	}
 
 	// randomize the order by shuffle it 3 times
-	for i := 0; i < 3; i++ {
-		rand.Shuffle(len(entries), func(i, j int) { entries[i], entries[j] = entries[j], entries[i] })
+	if len(entries) > 5 {
+		for i := 0; i < 3; i++ {
+			rand.Shuffle(len(entries), func(i, j int) { entries[i], entries[j] = entries[j], entries[i] })
+		}
 	}
 
 	log.Printf("iniatialized test data from %s", dataFile)
