@@ -1,6 +1,8 @@
 ## Load Generator
 
 Use [Locust.io](http://locust.io) to generate continous calls to microservices for performance testing.
+The load generation uses [Boomer](https://github.com/myzhan/boomer) for ability to generate large amount of requests with load CPU oerhead.
+
 
 
 ### Quick Start
@@ -15,7 +17,7 @@ poetry shell
 # start locust with web console enabled
 ./entry_point.sh 
 
-# open browser to http://localhost:3000 to see the results
+# open browser to http://localhost:8089 to see the results
 
 # to run it in minikube
 skaffold dev
