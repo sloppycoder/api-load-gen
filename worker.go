@@ -32,9 +32,13 @@ func apiURL(accountNum string) string {
 	}
 	if useRandomID {
 		return base + "random"
-	} else {
-		return base + accountNum
 	}
+	return base + accountNum
+}
+
+func readAndDiscard(response *http.Response) {
+	io.Copy(ioutil.Discard, response.Body)
+	response.Body.Close()
 }
 
 func invokeAPI() {
@@ -46,8 +50,8 @@ func invokeAPI() {
 		log.Fatalf("%v\n", err)
 	}
 
-	uuid, _ := uuid.NewRandom()
-	request.Header.Set("CorrelationId", uuid.String())
+	id, _ := uuid.NewRandom()
+	request.Header.Set("CorrelationId", id.String())
 	request.Header.Set("GroupId", groupID)
 	request.Header.Set("Accept", "application/json")
 
@@ -57,30 +61,28 @@ func invokeAPI() {
 
 	atomic.AddUint64(&total, 1)
 
-	if err != nil || response.StatusCode != 200 {
-		atomic.AddUint64(&failed, 1)
-
-		var errMsg string
-		if err != nil {
-			if verbose {
-				log.Printf("%v\n", err)
-			}
-			chunks := strings.Split(err.Error(), ":")
-			errMsg = chunks[len(chunks)-1]
-		} else {
-			errMsg = "statusCode=" + strconv.Itoa(response.StatusCode)
+	switch {
+	case err != nil:
+		if verbose {
+			log.Printf("%v\n", err)
 		}
-
+		chunks := strings.Split(err.Error(), ":")
+		errMsg := chunks[len(chunks)-1]
 		boomer.RecordFailure("GET", path, 0.0, errMsg)
-	} else {
+
+		atomic.AddUint64(&failed, 1)
+	case response.StatusCode != 200:
+		errMsg := "statusCode=" + strconv.Itoa(response.StatusCode)
+		boomer.RecordFailure("GET", path, 0.0, errMsg)
+
+		readAndDiscard(response)
+
+		atomic.AddUint64(&failed, 1)
+	default:
 		boomer.RecordSuccess("GET", path,
 			elapsed.Nanoseconds()/int64(time.Millisecond), response.ContentLength)
 
-		_, err := io.Copy(ioutil.Discard, response.Body)
-		if err != nil {
-			log.Printf("Error reading response for %s", path)
-		}
-		response.Body.Close()
+		readAndDiscard(response)
 	}
 
 	if sleep > 0 {
