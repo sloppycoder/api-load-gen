@@ -15,23 +15,31 @@ import (
 
 var client *http.Client
 var total, failed uint64 = 0, 0
-var verbose, useRandomID = false, false
+var verbose, useRandomID, v2 = false, false, false
 var baseURL string
 var sleep int
 
 func nextParams() (string, string) {
-	param := "11223344"
-	if useRandomID {
-		param = "random"
-	}
+	return "GRP1111", "11223344"
+}
 
-	return "GRP001", "/" + param
+func apiURL(accountNum string) string {
+	base := "/accounts/"
+	if v2 {
+		base += "v2/"
+	}
+	if useRandomID {
+		return base + "random"
+	} else {
+		return base + accountNum
+	}
 }
 
 func invokeAPI() {
-	groupID, path := nextParams()
-	url := baseURL + path
-	request, err := http.NewRequest("GET", url, nil)
+	groupID, accNum := nextParams()
+	path := apiURL(accNum)
+
+	request, err := http.NewRequest("GET", baseURL+path, nil)
 	if err != nil {
 		log.Fatalf("%v\n", err)
 	}
@@ -39,7 +47,7 @@ func invokeAPI() {
 	uuid, _ := uuid.NewRandom()
 	request.Header.Set("CorrelationId", uuid.String())
 	request.Header.Set("GroupId", groupID)
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
 
 	startTime := time.Now()
 	response, err := client.Do(request)
@@ -47,20 +55,26 @@ func invokeAPI() {
 
 	atomic.AddUint64(&total, 1)
 
-	if err != nil {
+	if err != nil || response.StatusCode != 200 {
 		atomic.AddUint64(&failed, 1)
 
-		if verbose {
-			log.Printf("%v\n", err)
+		var errMsg string
+		if err != nil {
+			if verbose {
+				log.Printf("%v\n", err)
+			}
+			chunks := strings.Split(err.Error(), ":")
+			errMsg = chunks[len(chunks)-1]
+		} else {
+			errMsg = "statusCode=" + strconv.Itoa(response.StatusCode)
 		}
 
-		chunks := strings.Split(err.Error(), ":")
-		errMsg := chunks[len(chunks)-1]
-		boomer.RecordFailure("GET", url, 0.0, errMsg)
+		boomer.RecordFailure("GET", path, 0.0, errMsg)
 	} else {
-		boomer.RecordSuccess("GET", strconv.Itoa(response.StatusCode),
+		boomer.RecordSuccess("GET", path,
 			elapsed.Nanoseconds()/int64(time.Millisecond), response.ContentLength)
 
+		// dp we need to full response body?
 		response.Body.Close()
 	}
 
@@ -87,6 +101,7 @@ func main() {
 	flag.IntVar(&sleep, "sleep", 0, "sleep between each request in ms")
 	flag.BoolVar(&useRandomID, "random-id", true, "Use random as account number in request")
 	flag.BoolVar(&verbose, "verbose", false, "Print debug log")
+	flag.BoolVar(&v2, "v2", false, "Use v2 in request url")
 	flag.Parse()
 
 	if !strings.HasSuffix(baseURL, "/") {

@@ -6,3 +6,7 @@ k8s/
 .venv/
 .flake8
 .pre-commit-config.yaml
+.golangci.yml
+gen_test_data.py
+requirements-dev.txt
+*.toml

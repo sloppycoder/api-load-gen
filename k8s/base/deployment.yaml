@@ -37,15 +37,8 @@ spec:
               value: "10"
             - name: WORKERS
               value: "1"
-            - name: USE_RANDOM_ID
-              value: "true"
-      #     volumeMounts:
-      #       - mountPath: /data
-      #         name: testdata-pv
-      # volumes:
-      #   - name: testdata-pv
-      #     persistentVolumeClaim:
-      #       claimName: testdata-pvc
+            - name: WORKER_PARAMS
+              value: "--sleep 0 --random-id"
 
 ---
 apiVersion: v1
