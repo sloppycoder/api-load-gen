@@ -1,0 +1,107 @@
+package main
+
+import (
+	"flag"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/myzhan/boomer"
+)
+
+var client *http.Client
+var total, failed uint64 = 0, 0
+var verbose, useRandomID = false, false
+var baseURL string
+var sleep int
+
+func nextParams() (string, string) {
+	param := "11223344"
+	if useRandomID {
+		param = "random"
+	}
+
+	return "GRP001", "/" + param
+}
+
+func invokeAPI() {
+	groupID, path := nextParams()
+	url := baseURL + path
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+
+	uuid, _ := uuid.NewRandom()
+	request.Header.Set("CorrelationId", uuid.String())
+	request.Header.Set("GroupId", groupID)
+	request.Header.Set("Content-Type", "application/json")
+
+	startTime := time.Now()
+	response, err := client.Do(request)
+	elapsed := time.Since(startTime)
+
+	atomic.AddUint64(&total, 1)
+
+	if err != nil {
+		atomic.AddUint64(&failed, 1)
+
+		if verbose {
+			log.Printf("%v\n", err)
+		}
+
+		chunks := strings.Split(err.Error(), ":")
+		errMsg := chunks[len(chunks)-1]
+		boomer.RecordFailure("GET", url, 0.0, errMsg)
+	} else {
+		boomer.RecordSuccess("GET", strconv.Itoa(response.StatusCode),
+			elapsed.Nanoseconds()/int64(time.Millisecond), response.ContentLength)
+
+		response.Body.Close()
+	}
+
+	if sleep > 0 {
+		time.Sleep(time.Duration(sleep) * time.Millisecond)
+	}
+}
+
+func initHTTPClient() {
+	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 2000
+	tr := &http.Transport{
+		MaxIdleConnsPerHost: 2000,
+		DisableCompression:  true,
+		DisableKeepAlives:   false,
+	}
+	client = &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(120) * time.Second,
+	}
+}
+
+func main() {
+	flag.StringVar(&baseURL, "host", "http://accounts:8080", "base URL for endpoint to call")
+	flag.IntVar(&sleep, "sleep", 0, "sleep between each request in ms")
+	flag.BoolVar(&useRandomID, "random-id", true, "Use random as account number in request")
+	flag.BoolVar(&verbose, "verbose", false, "Print debug log")
+	flag.Parse()
+
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL += "/"
+	}
+
+	log.Printf("API endpoint is %s, random-id=%t, sleep=%d", baseURL, useRandomID, sleep)
+
+	initHTTPClient()
+
+	task1 := &boomer.Task{
+		Name:   "invoke_api",
+		Weight: 10,
+		Fn:     invokeAPI,
+	}
+
+	boomer.Run(task1)
+}
