@@ -28,17 +28,18 @@ var entries [][]string = [][]string{{"GRP1", "01", "20210530"}}
 
 func initTestData() {
 	if useRandomID {
+		log.Print("Loading test data is skipped when using random-id is in effect")
 		return
 	}
 
 	dataFile := testDataFile
 	if dataFile == "" {
-		dataFile = "dummy_data.csv"
+
 	}
 
 	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
-		log.Printf("Invalid test data file %s", dataFile)
-		return
+		log.Printf("Invalid test data file %s, fall back to default", dataFile)
+		dataFile = "dummy_data.csv"
 	}
 
 	file, err := os.Open(dataFile)
@@ -62,7 +63,7 @@ func initTestData() {
 		}
 	}
 
-	log.Printf("iniatialized test data from %s", dataFile)
+	log.Printf("%d lines of test data from %s", len(entries), dataFile)
 }
 
 func nextEntry() (map[string]string, error) {
