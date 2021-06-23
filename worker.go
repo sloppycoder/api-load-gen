@@ -24,7 +24,7 @@ var total, failed uint64 = 0, 0
 var verbose, useRandomID, v2 = false, false, false
 var baseURL, testDataFile string
 var sleep int
-var entries [][]string = [][]string{{"GRP1", "01", "20210530"}}
+var testData [][]string = [][]string{{"GRP1", "01", "20210530"}}
 
 func initTestData() {
 	if useRandomID {
@@ -33,10 +33,6 @@ func initTestData() {
 	}
 
 	dataFile := testDataFile
-	if dataFile == "" {
-
-	}
-
 	if _, err := os.Stat(dataFile); os.IsNotExist(err) {
 		log.Printf("Invalid test data file %s, fall back to default", dataFile)
 		dataFile = "dummy_data.csv"
@@ -50,20 +46,22 @@ func initTestData() {
 	defer file.Close()
 
 	r := csv.NewReader(file)
-	entries, err := r.ReadAll()
+	lines, err := r.ReadAll()
 	if err != nil {
 		log.Printf("Error when reading CSV file %s", dataFile)
 		return
 	}
 
 	// randomize the order by shuffle it 3 times
-	if len(entries) > 5 {
+	if len(lines) > 5 {
 		for i := 0; i < 3; i++ {
-			rand.Shuffle(len(entries), func(i, j int) { entries[i], entries[j] = entries[j], entries[i] })
+			rand.Shuffle(len(lines), func(i, j int) { lines[i], lines[j] = lines[j], lines[i] })
 		}
 	}
 
-	log.Printf("%d lines of test data from %s", len(entries), dataFile)
+	log.Printf("%d lines of test data from %s", len(lines), dataFile)
+
+	testData = lines
 }
 
 func nextEntry() (map[string]string, error) {
@@ -75,7 +73,7 @@ func nextEntry() (map[string]string, error) {
 		}, nil
 	}
 
-	entry := entries[rand.Intn(len(entries))] //nolint:gosec
+	entry := testData[rand.Intn(len(testData))] //nolint:gosec
 	if len(entry) < 3 {
 		return nil, fmt.Errorf("invalid test data %v", entry)
 	}
