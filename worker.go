@@ -22,12 +22,16 @@ import (
 var client *http.Client
 var total, failed uint64 = 0, 0
 var verbose, useRandomID, v2 = false, false, false
-var baseURL string
+var baseURL, testDataFile string
 var sleep int
 var entries [][]string = [][]string{{"GRP1", "01", "20210530"}}
 
 func initTestData() {
-	dataFile := os.Getenv("API_DATA_FILE")
+	if useRandomID {
+		return
+	}
+
+	dataFile := testDataFile
 	if dataFile == "" {
 		dataFile = "dummy_data.csv"
 	}
@@ -166,8 +170,9 @@ func initHTTPClient() {
 
 func main() {
 	flag.StringVar(&baseURL, "host", "http://accounts:8080", "base URL for endpoint to call")
+	flag.StringVar(&testDataFile, "data", "", "CSV file that contains test data")
 	flag.IntVar(&sleep, "sleep", 0, "sleep between each request in ms")
-	flag.BoolVar(&useRandomID, "random-id", true, "Use random as account number in request")
+	flag.BoolVar(&useRandomID, "random-id", false, "Use random as account number in request")
 	flag.BoolVar(&verbose, "verbose", false, "Print debug log")
 	flag.BoolVar(&v2, "v2", false, "Use v2 in request url")
 	flag.Parse()
