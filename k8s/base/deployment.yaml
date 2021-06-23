@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 200Mi
 
 ---
 apiVersion: apps/v1
@@ -38,7 +38,15 @@ spec:
             - name: WORKERS
               value: "1"
             - name: WORKER_PARAMS
-              value: "--sleep 0 --random-id"
+              value: "--sleep 500 --random-id"
+              # value: "--sleep 500 --data /data/test_data.csv"
+          volumeMounts:
+            - mountPath: /data
+              name: testdata-pv
+      volumes:
+        - name: testdata-pv
+          persistentVolumeClaim:
+            claimName: testdata-pvc
 
 ---
 apiVersion: v1
