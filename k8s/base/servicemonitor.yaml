@@ -3,7 +3,7 @@ kind: ServiceMonitor
 metadata:
   name: locust
   labels:
-    target: prometheus
+    release: prometheus
 spec:
   selector:
     matchLabels:
