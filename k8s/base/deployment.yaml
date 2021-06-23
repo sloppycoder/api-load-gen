@@ -36,7 +36,7 @@ spec:
             - name: USERS
               value: "10"
             - name: WORKERS
-              value: "1"
+              value: "2"
             - name: WORKER_PARAMS
               value: "--sleep 500 --random-id"
               # value: "--sleep 500 --data /data/test_data.csv"
