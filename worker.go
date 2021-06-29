@@ -85,15 +85,21 @@ func nextEntry() (map[string]string, error) {
 	}, nil
 }
 
-func apiURL(accountNum string) string {
+func apiURL(accountNum, asOf string) (string, string) {
 	base := "/accounts/"
 	if v2 {
 		base += "v2/"
 	}
+
 	if useRandomID {
-		return base + "random"
+		return base + "random", base + "random"
 	}
-	return base + accountNum
+
+	if asOf == "" {
+		return base + "<id>", base + accountNum
+	}
+
+	return base + "<id>/<asof>", base + accountNum + "/" + asOf
 }
 
 func readAndDiscard(response *http.Response) {
@@ -108,7 +114,8 @@ func invokeAPI() {
 		return
 	}
 
-	path := apiURL(params["AccountNo"])
+	name, path := apiURL(params["AccountNo"], params["asOf"])
+	fmt.Printf("name=%s, path=%s\n", name, path)
 	request, err := http.NewRequest("GET", baseURL+path, nil)
 	if err != nil {
 		log.Fatalf("%v\n", err)
@@ -132,18 +139,18 @@ func invokeAPI() {
 		}
 		chunks := strings.Split(err.Error(), ":")
 		errMsg := chunks[len(chunks)-1]
-		boomer.RecordFailure("GET", path, 0.0, errMsg)
+		boomer.RecordFailure("GET", name, 0.0, errMsg)
 
 		atomic.AddUint64(&failed, 1)
 	case response.StatusCode != 200:
 		errMsg := "statusCode=" + strconv.Itoa(response.StatusCode)
-		boomer.RecordFailure("GET", path, 0.0, errMsg)
+		boomer.RecordFailure("GET", name, 0.0, errMsg)
 
 		readAndDiscard(response)
 
 		atomic.AddUint64(&failed, 1)
 	default:
-		boomer.RecordSuccess("GET", path,
+		boomer.RecordSuccess("GET", name,
 			elapsed.Nanoseconds()/int64(time.Millisecond), response.ContentLength)
 
 		readAndDiscard(response)
