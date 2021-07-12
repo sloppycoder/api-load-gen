@@ -184,10 +184,6 @@ func main() {
 	flag.BoolVar(&v2, "v2", false, "Use v2 in request url")
 	flag.Parse()
 
-	if !strings.HasSuffix(baseURL, "/") {
-		baseURL += "/"
-	}
-
 	log.Printf("API endpoint is %s, random-id=%t, sleep=%d", baseURL, useRandomID, sleep)
 
 	rand.Seed(time.Now().UnixNano())
