@@ -23,7 +23,7 @@ var client *http.Client
 var total, failed uint64 = 0, 0
 var verbose, useRandomID, v2 = false, false, false
 var baseURL, testDataFile string
-var sleep int
+var sleep, timeout int
 var testData [][]string = [][]string{{"GRP1", "01", "20210530"}}
 
 func initTestData() {
@@ -171,7 +171,7 @@ func initHTTPClient() {
 	}
 	client = &http.Client{
 		Transport: tr,
-		Timeout:   time.Duration(10) * time.Second,
+		Timeout:   time.Duration(timeout) * time.Second,
 	}
 }
 
@@ -179,6 +179,7 @@ func main() {
 	flag.StringVar(&baseURL, "host", "http://accounts:8080", "base URL for endpoint to call")
 	flag.StringVar(&testDataFile, "data", "", "CSV file that contains test data")
 	flag.IntVar(&sleep, "sleep", 0, "sleep between each request in ms")
+	flag.IntVar(&timeout, "timeout", 10, "HTTP request read timeout")
 	flag.BoolVar(&useRandomID, "random-id", false, "Use random as account number in request")
 	flag.BoolVar(&verbose, "verbose", false, "Print debug log")
 	flag.BoolVar(&v2, "v2", false, "Use v2 in request url")
