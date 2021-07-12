@@ -115,8 +115,9 @@ func invokeAPI() {
 	}
 
 	name, path := apiURL(params["AccountNo"], params["asOf"])
-	fmt.Printf("name=%s, path=%s\n", name, path)
-	request, err := http.NewRequest("GET", baseURL+path, nil)
+	url := baseURL + path
+	fmt.Printf("name=%s, url=%s\n", name, url)
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("%v\n", err)
 	}
