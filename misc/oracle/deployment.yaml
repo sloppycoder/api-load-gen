@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oracle
+spec:
+  selector:
+    matchLabels:
+      app: oracle
+  template:
+    metadata:
+      labels:
+        app: oracle
+    spec:
+      containers:
+        - name: oracle
+          image: store/oracle/database-enterprise:12.2.0.1
+          ports:
+            - containerPort: 1521
+              protocol: TCP
+            - containerPort: 5500
+              protocol: TCP
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle
+  labels:
+    app: oracle
+spec:
+  type: NodePort
+  selector:
+    app: oracle
+  ports:
+    - port: 1521
+      nodePort: 31521
