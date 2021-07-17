@@ -7,7 +7,7 @@ HOST="${HOST:-http://accounts:8080}"
 
 for i in $(seq 1 $NUM_OF_WORKER);
 do
-    ./worker --host $HOST $WORKER_PARAMS &
+    locust --worker &
 done
 
 locust --master --host $HOST
