@@ -1,14 +1,12 @@
 resources:
-  - namespace.yaml
-  
   # rbac for prometheus instance
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-cluster-role-binding.yaml
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-cluster-role.yaml
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.48.1/example/rbac/prometheus/prometheus-service-account.yaml
   
-  #deploy prometheus instance
+  # deploy prometheus instance
   - prometheus.yaml
 
-  #deploy grafana instance
+  # deploy grafana instance
   - grafana.yaml
 
