@@ -4,7 +4,6 @@ resources:
 
 namespace: prometheus
 
-
 patchesJSON6902:
 - target:
     group: monitoring.coreos.com
@@ -12,6 +11,6 @@ patchesJSON6902:
     kind: Prometheus
     name: prometheus
   patch: |-
-    - op: add
-      path: /spec/externalUrl
-      value: https://kube2.vino9.org/prometheus
+    - op: replace
+      path: /spec/storage/volumeClaimTemplate/spec/storageClassName
+      value: local-path

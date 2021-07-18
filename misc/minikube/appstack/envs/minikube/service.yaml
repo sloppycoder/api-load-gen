@@ -1,0 +1,32 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  type: NodePort
+  ports:
+  - name: web
+    port: 9090
+    protocol: TCP
+    targetPort: web
+    nodePort: 30900
+  selector:
+    prometheus: prometheus
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: http-grafana
+    nodePort: 30901
+  selector:
+    app: grafana
+  sessionAffinity: ClientIP
+

@@ -66,18 +66,3 @@ spec:
         - name: grafana-pv
           persistentVolumeClaim:
             claimName: grafana-pvc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana
-spec:
-  type: NodePort
-  ports:
-  - port: 3000
-    protocol: TCP
-    targetPort: http-grafana
-    nodePort: 30901
-  selector:
-    app: grafana
-  sessionAffinity: None
