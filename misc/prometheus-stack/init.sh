@@ -59,7 +59,7 @@ install_prometheus()
         overlay="minikube"
     fi
 
-    kustomize build appstack/envs/$overlay | minikube kubectl -- apply -f - 
+    kustomize build instance/envs/$overlay | minikube kubectl -- apply -f - 
 }
 
 check_prereqs
