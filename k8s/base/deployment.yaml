@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: locust
-          image: gcr.io/vino9-276317/api-load-gen
+          image: ghcr.io/sloppycoder/api-load-gen
           ports:
             - containerPort: 8089
               protocol: TCP

@@ -5,7 +5,7 @@ metadata:
 
 build:
   artifacts:
-  - image: gcr.io/vino9-276317/api-load-gen
+  - image: ghcr.io/sloppycoder/api-load-gen
 
 deploy:
   kustomize:
