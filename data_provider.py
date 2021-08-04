@@ -38,8 +38,8 @@ def next_call_params():
         params["Date"],
     )
     headers = {"GroupId": group_id, "CorrelationId": str(uuid.uuid4())}
-    url = f"/accounts/v2/{account_num}"
-    api_name = "/accounts/v2/<account>"
+    url = f"/accounts/{account_num}"
+    api_name = "/accounts/<account>"
     if asof is not None:
         url += f"/{asof}"
         api_name += "/asOf"
