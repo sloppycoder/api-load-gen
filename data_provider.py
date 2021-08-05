@@ -6,6 +6,9 @@ import sys
 import uuid
 
 _ALL_DATA_ = None
+_USE_RANDOM_ = os.environ.get("USE_RANDOM", "False").lower() in ["true", "yes", "y"]
+if _USE_RANDOM_:
+    print("Use random account id")
 
 
 def read_test_datafile():
@@ -29,18 +32,20 @@ def read_test_datafile():
 
 def next_call_params():
     """ randomly pick 1 record from the data set """
+    global _USE_RANDOM_
+
     dataset = read_test_datafile()
     i = random.randrange(0, len(dataset), 1)
     params = dataset[i]
     group_id, account_num, asof = (
         params["GroupId"],
-        params["AccountNumber"],
+        "random" if _USE_RANDOM_ else params["AccountNumber"],
         params["Date"],
     )
     headers = {"GroupId": group_id, "CorrelationId": str(uuid.uuid4())}
     url = f"/accounts/{account_num}"
     api_name = "/accounts/<account>"
-    if asof is not None:
+    if asof:
         url += f"/{asof}"
         api_name += "/asOf"
     return api_name, url, headers, {}
