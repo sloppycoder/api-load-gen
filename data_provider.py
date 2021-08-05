@@ -37,17 +37,22 @@ def next_call_params():
     dataset = read_test_datafile()
     i = random.randrange(0, len(dataset), 1)
     params = dataset[i]
-    group_id, account_num, asof = (
+    group_id, account_num, asof, api_name = (
         params["GroupId"],
-        "random" if _USE_RANDOM_ else params["AccountNumber"],
+        params["AccountNumber"],
         params["Date"],
+        "/accounts/<account>",
     )
-    headers = {"GroupId": group_id, "CorrelationId": str(uuid.uuid4())}
+
+    if _USE_RANDOM_:
+        account_num = "random"
+        asof = ""
+        api_name = "/accounts/random"
+
     url = f"/accounts/{account_num}"
-    api_name = "/accounts/<account>"
-    if asof:
-        url += f"/{asof}"
-        api_name += "/asOf"
+    url += f"/{asof}" if asof else ""
+    headers = {"GroupId": group_id, "CorrelationId": str(uuid.uuid4())}
+
     return api_name, url, headers, {}
 
 
