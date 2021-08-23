@@ -8,7 +8,7 @@ from locust.contrib.fasthttp import FastHttpUser as HttpUser
 from locust.main import main
 
 import prometheus_exporter
-from data_provider import next_call_params
+from data_provider import get_test_stages, next_call_params
 
 
 @events.init.add_listener
@@ -47,7 +47,8 @@ class StagesShape(LoadTestShape):
             spawn_rate -- Number of users to start/stop per second
             stop -- A boolean that can stop that test at a specific stage
         stop_at_end -- Can be set to stop once all stages have run.
-    """
+
+    e.g.
 
     stages = [
         {"duration": 60, "users": 10, "spawn_rate": 10},
@@ -58,10 +59,12 @@ class StagesShape(LoadTestShape):
         {"duration": 360, "users": 1, "spawn_rate": 1},
     ]
 
+    """
+
     def tick(self):
         run_time = self.get_run_time()
 
-        for stage in self.stages:
+        for stage in get_test_stages():
             if run_time < stage["duration"]:
                 tick_data = (stage["users"], stage["spawn_rate"])
                 print(tick_data)

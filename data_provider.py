@@ -56,6 +56,26 @@ def next_call_params():
     return api_name, url, headers, {}
 
 
+def val2int(my_dict):
+    """ coerce each value field to be int """
+    for k in my_dict:
+        my_dict[k] = int(my_dict[k])
+    return my_dict
+
+
+def get_test_stages():
+    stage_file = os.environ.get("TEST_STAGE_FILE", "stages.csv")
+    try:
+        with open(stage_file) as file:
+            header = file.readline().strip()
+            reader = csv.DictReader(file, header.split(","))
+            return [val2int(row) for row in reader]
+    except Exception as e:
+        print(f"get_test_stages() exception: {e}")
+        # return a fail-safe value, always use 1 user
+        return [{"duration": 31_536_000, "users": 1, "spawn_rate": 10}]
+
+
 if __name__ == "__main__":
     for _ in range(10):
         print(next_call_params())
