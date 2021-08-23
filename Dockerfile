@@ -21,7 +21,7 @@ RUN apt-get -qq update \
         jq
 
 COPY --from=builder /install /
-COPY entrypoint.sh *.py dummy.csv /
+COPY entrypoint.sh *.py dummy.csv stages.csv /
 
 EXPOSE 8089
 
